@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, send_file
+import os
 from flask_cors import CORS
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -11,7 +12,7 @@ CORS(app)  # This will enable CORS for all routes
 # Replace the connection string with your own if it's different.
 # By default, MongoDB runs on port 27017 on localhost.
 try:
-    client = MongoClient('mongodb://localhost:27017/')
+    client = MongoClient(os.environ.get("mongodb+srv://abhilasha-108:108108@cluster0.owce1kn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"))
     db = client['library_db']  # Use or create a database named 'library_db'
     books_collection = db['books']  # Collection for books
     users_collection = db['users']  # Collection for users
