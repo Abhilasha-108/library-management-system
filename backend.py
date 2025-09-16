@@ -195,5 +195,4 @@ def delete_user(user_id):
     users_collection.delete_one({"user_id": user_id})
     return jsonify({"message": "User deleted successfully.", "status": "success"})
 
-if __name__ == '__main__':
-app.run(debug=True)
+
