@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+        input, button {
+            border-radius: 8px;
+        }
+        .page-content {
+            display: none;
+        }
+        .page-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-4 md:p-8 space-y-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-center text-gray-800">Library Management System</h1>
+        
+        <!-- Navigation Menu -->
+        <nav class="bg-white rounded-lg p-4 shadow-md flex justify-center space-x-6">
+            <button onclick="showPage('dashboard')" class="text-gray-600 hover:text-indigo-600 font-semibold transition-colors duration-200">Home</button>
+            <button onclick="showPage('add-manage')" class="text-gray-600 hover:text-indigo-600 font-semibold transition-colors duration-200">Add/Manage</button>
+            <button onclick="showPage('all-books')" class="text-gray-600 hover:text-indigo-600 font-semibold transition-colors duration-200">All Books</button>
+            <button onclick="showPage('all-users')" class="text-gray-600 hover:text-indigo-600 font-semibold transition-colors duration-200">All Users</button>
+            <button onclick="showPage('borrowed')" class="text-gray-600 hover:text-indigo-600 font-semibold transition-colors duration-200">Borrowed Books</button>
+        </nav>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page-content active space-y-8">
+            <div class="card grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
+                <div class="p-4 bg-indigo-50 rounded-lg">
+                    <p class="text-2xl font-bold text-indigo-700" id="totalBooks">0</p>
+                    <p class="text-gray-500">Total Books</p>
+                </div>
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <p class="text-2xl font-bold text-green-700" id="totalUsers">0</p>
+                    <p class="text-gray-500">Total Users</p>
+                </div>
+                <div class="p-4 bg-yellow-50 rounded-lg">
+                    <p class="text-2xl font-bold text-yellow-700" id="borrowedCount">0</p>
+                    <p class="text-gray-500">Borrowed Books</p>
+                </div>
+            </div>
+            <div class="text-center text-gray-500">
+                <p>Welcome to the Library Management System. Use the navigation above to manage books and users.</p>
+            </div>
+        </div>
+
+        <!-- Add/Manage Page -->
+        <div id="add-manage" class="page-content space-y-8">
+            <!-- Add Book Section -->
+            <div class="card space-y-4">
+                <h2 class="text-2xl font-bold text-gray-700">Add a Book</h2>
+                <div class="space-y-4">
+                    <input id="bookTitle" type="text" placeholder="Book Title" class="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input id="bookAuthor" type="text" placeholder="Author Name" class="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input id="bookISBN" type="text" placeholder="ISBN" class="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button onclick="addBook()" class="w-full bg-indigo-500 text-white p-3 font-semibold hover:bg-indigo-600 transition duration-300">Add Book</button>
+                </div>
+            </div>
+
+            <!-- Add User Section -->
+            <div class="card space-y-4">
+                <h2 class="text-2xl font-bold text-gray-700">Add a User</h2>
+                <div class="space-y-4">
+                    <input id="userName" type="text" placeholder="User Name" class="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input id="userID" type="text" placeholder="User ID" class="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button onclick="addUser()" class="w-full bg-indigo-500 text-white p-3 font-semibold hover:bg-indigo-600 transition duration-300">Add User</button>
+                </div>
+            </div>
+
+            <!-- Borrow/Return Book Section -->
+            <div class="card space-y-4">
+                <h2 class="text-2xl font-bold text-gray-700">Borrow / Return</h2>
+                <div class="space-y-4">
+                    <input id="borrowUserID" type="text" placeholder="User ID" class="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input id="borrowBookISBN" type="text" placeholder="Book ISBN" class="w-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <div class="flex space-x-4">
+                        <button onclick="borrowBook()" class="w-1/2 bg-green-500 text-white p-3 font-semibold hover:bg-green-600 transition duration-300">Borrow Book</button>
+                        <button onclick="returnBook()" class="w-1/2 bg-red-500 text-white p-3 font-semibold hover:bg-red-600 transition duration-300">Return Book</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Books Page -->
+        <div id="all-books" class="page-content space-y-8">
+            <div class="card space-y-4">
+                <h2 class="text-2xl font-bold text-gray-700">All Books</h2>
+                <div id="allBooksList" class="space-y-2">
+                    <!-- Books will be displayed here -->
+                    <p class="text-gray-500">Fetching books...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Users Page -->
+        <div id="all-users" class="page-content space-y-8">
+            <div class="card space-y-4">
+                <h2 class="text-2xl font-bold text-gray-700">All Users</h2>
+                <div id="allUsersList" class="space-y-2">
+                    <!-- Users will be displayed here -->
+                    <p class="text-gray-500">Fetching users...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Borrowed Books Page -->
+        <div id="borrowed" class="page-content space-y-8">
+            <div class="card space-y-4">
+                <h2 class="text-2xl font-bold text-gray-700">Currently Borrowed Books</h2>
+                <div id="borrowedList" class="space-y-2">
+                    <!-- Borrowed books will be displayed here -->
+                    <p class="text-gray-500">No books are currently borrowed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Message Section -->
+        <div id="statusMessage" class="text-center p-4 rounded-lg font-medium hidden"></div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Confirm Deletion</h3>
+                    <div class="mt-2 px-7 py-3">
+                        <p class="text-sm text-gray-500" id="modal-message">Are you sure you want to proceed?</p>
+                    </div>
+                    <div class="items-center px-4 py-3 flex space-x-4">
+                        <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            Delete
+                        </button>
+                        <button id="cancelDeleteBtn" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API URL for our backend server
+        const API_URL = 'http://localhost:5000';
+
+        // Function to show a specific page and hide others
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update content based on the page
+            if (pageId === 'dashboard') {
+                updateDashboard();
+            } else if (pageId === 'all-books') {
+                updateAllBooksList();
+            } else if (pageId === 'all-users') {
+                updateAllUsersList();
+            } else if (pageId === 'borrowed') {
+                updateBorrowedList();
+            }
+        }
+
+        // Display a status message to the user
+        function showStatus(message, type) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.className = `text-center p-4 rounded-lg font-medium block mt-4 transition-all duration-300 ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+            setTimeout(() => {
+                statusMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Update the dashboard counts
+        async function updateDashboard() {
+            try {
+                const dashboardResponse = await fetch(`${API_URL}/dashboard_counts`);
+                const counts = await dashboardResponse.json();
+                document.getElementById('totalBooks').textContent = counts.total_books;
+                document.getElementById('totalUsers').textContent = counts.total_users;
+                document.getElementById('borrowedCount').textContent = counts.borrowed_books;
+            } catch (error) {
+                showStatus('Error fetching dashboard data. Make sure the server is running.', 'error');
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // Update the list of all books
+        async function updateAllBooksList() {
+            const allBooksList = document.getElementById('allBooksList');
+            allBooksList.innerHTML = '<p class="text-gray-500">Fetching books...</p>';
+            
+            try {
+                const response = await fetch(`${API_URL}/all_books`);
+                const allBooks = await response.json();
+
+                if (allBooks.length === 0) {
+                    allBooksList.innerHTML = '<p class="text-gray-500">No books in the library.</p>';
+                    return;
+                }
+
+                allBooksList.innerHTML = ''; // Clear placeholder
+                allBooks.forEach(book => {
+                    const bookDiv = document.createElement('div');
+                    bookDiv.className = 'p-4 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between';
+                    bookDiv.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800">Title: ${book.title}</p>
+                            <p class="text-gray-600">Author: ${book.author}</p>
+                            <p class="text-gray-500 text-sm">ISBN: ${book.isbn} - Status: <span class="${book.is_borrowed ? 'text-red-500' : 'text-green-500'} font-semibold">${book.is_borrowed ? 'Borrowed' : 'Available'}</span></p>
+                        </div>
+                        <button onclick="showDeleteConfirmation('${book.isbn}', 'book')" class="bg-red-500 text-white p-2 rounded-md font-semibold hover:bg-red-600 transition duration-300">Delete</button>
+                    `;
+                    allBooksList.appendChild(bookDiv);
+                });
+            } catch (error) {
+                showStatus('Error fetching all books. Make sure the server is running.', 'error');
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // Update the list of all users
+        async function updateAllUsersList() {
+            const allUsersList = document.getElementById('allUsersList');
+            allUsersList.innerHTML = '<p class="text-gray-500">Fetching users...</p>';
+            
+            try {
+                const response = await fetch(`${API_URL}/all_users`);
+                const allUsers = await response.json();
+
+                if (allUsers.length === 0) {
+                    allUsersList.innerHTML = '<p class="text-gray-500">No users found.</p>';
+                    return;
+                }
+
+                allUsersList.innerHTML = ''; // Clear placeholder
+                allUsers.forEach(user => {
+                    const userDiv = document.createElement('div');
+                    userDiv.className = 'p-4 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between';
+                    userDiv.innerHTML = `
+                        <div>
+                            <p class="font-bold text-gray-800">Name: ${user.name}</p>
+                            <p class="text-gray-600">User ID: ${user.user_id}</p>
+                        </div>
+                        <button onclick="showDeleteConfirmation('${user.user_id}', 'user')" class="bg-red-500 text-white p-2 rounded-md font-semibold hover:bg-red-600 transition duration-300">Delete</button>
+                    `;
+                    allUsersList.appendChild(userDiv);
+                });
+            } catch (error) {
+                showStatus('Error fetching users. Make sure the server is running.', 'error');
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // Update the displayed list of borrowed books by fetching from the API
+        async function updateBorrowedList() {
+            const borrowedList = document.getElementById('borrowedList');
+            borrowedList.innerHTML = '<p class="text-gray-500">Fetching borrowed books...</p>';
+            
+            try {
+                const response = await fetch(`${API_URL}/borrowed_books`);
+                const borrowedBooks = await response.json();
+
+                if (borrowedBooks.length === 0) {
+                    borrowedList.innerHTML = '<p class="text-gray-500">No books are currently borrowed.</p>';
+                    return;
+                }
+
+                borrowedList.innerHTML = ''; // Clear placeholder
+                borrowedBooks.forEach(transaction => {
+                    const transactionDiv = document.createElement('div');
+                    transactionDiv.className = 'p-4 bg-gray-50 rounded-lg border border-gray-200';
+                    const borrowDate = new Date(transaction.borrow_date);
+                    transactionDiv.innerHTML = `
+                        <p class="font-bold text-gray-800">Book: ${transaction.book_title}</p>
+                        <p class="text-gray-600">Borrowed by: ${transaction.user_name} (ID: ${transaction.user_id})</p>
+                        <p class="text-gray-500 text-sm">On: ${borrowDate.toLocaleDateString()}</p>
+                    `;
+                    borrowedList.appendChild(transactionDiv);
+                });
+            } catch (error) {
+                showStatus('Error fetching borrowed books. Make sure the server is running.', 'error');
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // Function to add a book
+        async function addBook() {
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            const isbn = document.getElementById('bookISBN').value;
+            
+            if (!title || !author || !isbn) {
+                showStatus("Please fill in all book details.", 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/add_book`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, author, isbn })
+                });
+                const result = await response.json();
+                showStatus(result.message, result.status);
+                document.getElementById('bookTitle').value = '';
+                document.getElementById('bookAuthor').value = '';
+                document.getElementById('bookISBN').value = '';
+                updateDashboard();
+            } catch (error) {
+                showStatus('Error adding book. Server might be down.', 'error');
+            }
+        }
+
+        // Function to add a user
+        async function addUser() {
+            const name = document.getElementById('userName').value;
+            const user_id = document.getElementById('userID').value;
+            
+            if (!name || !user_id) {
+                showStatus("Please fill in all user details.", 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/add_user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, user_id })
+                });
+                const result = await response.json();
+                showStatus(result.message, result.status);
+                document.getElementById('userName').value = '';
+                document.getElementById('userID').value = '';
+                updateDashboard();
+            } catch (error) {
+                showStatus('Error adding user. Server might be down.', 'error');
+            }
+        }
+
+        // Function to borrow a book
+        async function borrowBook() {
+            const user_id = document.getElementById('borrowUserID').value;
+            const isbn = document.getElementById('borrowBookISBN').value;
+
+            if (!user_id || !isbn) {
+                showStatus("Please enter both user ID and book ISBN.", 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/borrow_book`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id, isbn })
+                });
+                const result = await response.json();
+                showStatus(result.message, result.status);
+                document.getElementById('borrowUserID').value = '';
+                document.getElementById('borrowBookISBN').value = '';
+                updateDashboard();
+            } catch (error) {
+                showStatus('Error borrowing book. Server might be down.', 'error');
+            }
+        }
+
+        // Function to return a book
+        async function returnBook() {
+            const user_id = document.getElementById('borrowUserID').value;
+            const isbn = document.getElementById('borrowBookISBN').value;
+
+            if (!user_id || !isbn) {
+                showStatus("Please enter both user ID and book ISBN.", 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/return_book`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id, isbn })
+                });
+                const result = await response.json();
+                showStatus(result.message, result.status);
+                document.getElementById('borrowUserID').value = '';
+                document.getElementById('borrowBookISBN').value = '';
+                updateDashboard();
+            } catch (error) {
+                showStatus('Error returning book. Server might be down.', 'error');
+            }
+        }
+
+        // Function to show the confirmation modal for deletion
+        function showDeleteConfirmation(itemId, type) {
+            const modal = document.getElementById('confirmationModal');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            const messageEl = document.getElementById('modal-message');
+
+            if (type === 'book') {
+                messageEl.textContent = `Are you sure you want to delete this book? This action cannot be undone.`;
+                confirmBtn.onclick = () => {
+                    deleteBook(itemId);
+                    modal.classList.add('hidden');
+                };
+            } else if (type === 'user') {
+                messageEl.textContent = `Are you sure you want to delete this user? This action cannot be undone.`;
+                confirmBtn.onclick = () => {
+                    deleteUser(itemId);
+                    modal.classList.add('hidden');
+                };
+            }
+            
+            modal.classList.remove('hidden');
+            document.getElementById('cancelDeleteBtn').onclick = () => {
+                modal.classList.add('hidden');
+            };
+        }
+
+        // Function to delete a book
+        async function deleteBook(isbn) {
+            try {
+                const response = await fetch(`${API_URL}/delete_book/${isbn}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                showStatus(result.message, result.status);
+                
+                // Refresh the list after a successful deletion
+                if (result.status === 'success') {
+                    updateAllBooksList();
+                    updateDashboard();
+                }
+            } catch (error) {
+                showStatus('Error deleting book. Server might be down.', 'error');
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // Function to delete a user
+        async function deleteUser(userId) {
+            try {
+                const response = await fetch(`${API_URL}/delete_user/${userId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                showStatus(result.message, result.status);
+                
+                // Refresh the list after a successful deletion
+                if (result.status === 'success') {
+                    updateAllUsersList();
+                    updateDashboard();
+                }
+            } catch (error) {
+                showStatus('Error deleting user. Server might be down.', 'error');
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // Initial update of the list when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('dashboard');
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>
